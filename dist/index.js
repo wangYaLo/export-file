@@ -3,64 +3,71 @@
   * @param { {[key: string]: string | number}[] }data 传入的数据
   * @param { string }fileName 下载的execl文件的文件名
   * @param { string[] }tableHeader execl的表头
+  * @param { {
+  * data: {[key: string]: string | number}[];
+  * fileName: string;
+  * tableHeader: {[key: string]: string | number}[];
+  * } }options
   * @returns { Promise<string> }
 */
-
-function exportExecl$2(isDOMString, data, fileName = '配件查询', tableHeader = []) {
-  return new Promise((reslove, reject) => {
-    if (isDOMString) {
-      try {
-        const str = `<table  border="1"><tobody>${data}</tobody></table>`;
-        const blob = new Blob([str], { type: 'application/vnd.ms-powerpoint;charset=utf-8' });
-        const link = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.download = fileName + '.xlsx';
-        a.href = link;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        reslove('success');
-      } catch (error) {
-        reject('export execl error', error);
-      }
-    } else {
-      console.time('time to export execl');
-      try {
-        let tableTr = '';
-        if (tableHeader.length) {
-          if (Object.keys(data[0]).length !== tableHeader.length) reject('表头数组长度与表格数组长度不符合');
-          tableHeader.forEach((item) => {
-            tableTr += ('<td>' + item + '</td>');
-          });
-          tableTr = '<tr>' + tableTr + '</tr>';
+function exportExecl$2(isDOMString, options) {
+    let data = options.data;
+    let fileName = options.fileName;
+    let tableHeader = options.tableHeader;
+    return new Promise((reslove, reject) => {
+      if (isDOMString) {
+        try {
+          const str = `<table  border="1"><tobody>${data}</tobody></table>`;
+          const blob = new Blob([str], { type: 'application/vnd.ms-powerpoint;charset=utf-8' });
+          const link = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.download = fileName + '.xlsx';
+          a.href = link;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          reslove('success');
+        } catch (error) {
+          reject('export execl error', error);
         }
-        data.forEach((item) => {
-          let newStr = '';
-          for (const key in item) {
-            if (item[key] === null) {
-              newStr += ('<td  style="mso-number-format:\\@;">' + '' + '</td>');
-            } else {
-              newStr += ('<td  style="mso-number-format:\\@;">' + item[key] + '</td>');
-            }
+      } else {
+        console.time('time to export execl');
+        try {
+          let tableTr = '';
+          if (tableHeader.length) {
+            if (Object.keys(data[0]).length !== tableHeader.length) reject('表头数组长度与表格数组长度不符合');
+            tableHeader.forEach((item) => {
+              tableTr += ('<td>' + item + '</td>');
+            });
+            tableTr = '<tr>' + tableTr + '</tr>';
           }
-          tableTr += '<tr>' + newStr + '</tr>';
-        });
-        const str = `<table  border="1"><tobody>${tableTr}</tobody></table>`;
-        const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
-        const link = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.download = fileName + '.xls';
-        a.href = link;
-        document.body.appendChild(a);
-        a.click();
-        console.timeEnd('time to export execl');
-        document.body.removeChild(a);
-        reslove('success');
-      } catch (error) {
-        reject('export execl error', error);
+          data.forEach((item) => {
+            let newStr = '';
+            for (const key in item) {
+              if (item[key] === null) {
+                newStr += ('<td  style="mso-number-format:\\@;">' + '' + '</td>');
+              } else {
+                newStr += ('<td  style="mso-number-format:\\@;">' + item[key] + '</td>');
+              }
+            }
+            tableTr += '<tr>' + newStr + '</tr>';
+          });
+          const str = `<table  border="1"><tobody>${tableTr}</tobody></table>`;
+          const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          const link = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.download = fileName + '.xls';
+          a.href = link;
+          document.body.appendChild(a);
+          a.click();
+          console.timeEnd('time to export execl');
+          document.body.removeChild(a);
+          reslove('success');
+        } catch (error) {
+          reject('export execl error', error);
+        }
       }
-    }
-  })
+    })
 }
 Object.defineProperty(exportExecl$2.prototype, Symbol.toStringTag, {
     value: 'exportExecl',   
@@ -82,7 +89,7 @@ var utils = {
 	logBox: logBox
 };
 
-var str = "let exportExecl = new exportFile().exportExecl;\nisDOM: boolean;传入的数据是否为dom\ndata: {[key: string]: string}[];数据格式\nfilename: string;下载的文件名称\ntableHeader:{[key: string]: string}[]表头,长度为1\nexportExecl(isDOM, data, filename, tableHeader)";
+var str = "简易使用\nlet exportExecl = new exportFile().exportExecl;\nisDOM: boolean;传入的数据是否为dom\ndata: {[key: string]: string}[];数据格式\nfilename: string;下载的文件名称\ntableHeader:{[key: string]: string}[]表头,长度为1\nlet options: {\n  data,\n  filename\n  tableHeader\n}\nexportExecl(isDOM, options).then(() => {\n成功回调\n}).catch((error) => {\n失败回调\n})\n更多options配置请看文档";
 var exportExecl = {
 	str: str
 };
