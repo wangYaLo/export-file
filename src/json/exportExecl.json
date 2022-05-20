@@ -1,0 +1,3 @@
+{
+    "str": "let exportExecl = new exportFile().exportExecl;\nisDOM: boolean;传入的数据是否为dom\ndata: {[key: string]: string}[];数据格式\nfilename: string;下载的文件名称\ntableHeader:{[key: string]: string}[]表头,长度为1\nexportExecl(isDOM, data, filename, tableHeader)"
+}
