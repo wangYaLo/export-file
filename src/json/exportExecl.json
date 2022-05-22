@@ -1,3 +1,15 @@
 {
-    "str": "简易使用\nlet exportExecl = new exportFile().exportExecl;\nisDOM: boolean;传入的数据是否为dom\ndata: {[key: string]: string}[];数据格式\nfilename: string;下载的文件名称\ntableHeader:{[key: string]: string}[]表头,长度为1\nlet options: {\n  data,\n  filename\n  tableHeader\n}\nexportExecl(isDOM, options).then(() => {\n成功回调\n}).catch((error) => {\n失败回调\n})\n更多options配置请看文档"
+    "str": "简易使用\nlet exportExecl = new exportFile().exportExecl;\nisDOM: boolean;传入的数据是否为dom\ndata: {[key: string]: string}[];数据格式\nfilename: string;下载的文件名称\ntableHeader:{[key: string]: string}[]表头,长度为1\nlet options: {\n  data,\n  filename\n  tableHeader\n}\nexportExecl(isDOM, options).then(() => {\n成功回调\n}).catch((error) => {\n失败回调\n})\n更多options配置请看文档",
+    "optionsKeys": {
+        "data": "传入的数据",
+        "fileName": "下载的文件名称",
+        "tableHeader": "表头数据",
+        "style": "样式",
+        "mimeType": "下载的文件类型"
+    },
+    "styleKeys": {
+        "color": "文字颜色",
+        "background": "背景颜色",
+        "border": "边框"
+    }
 }

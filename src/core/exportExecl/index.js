@@ -9,22 +9,32 @@
   * @param { {
   * data: {[key: string]: string | number}[];
   * fileName: string;
-  * tableHeader: {[key: string]: string | number}[];
+  * tableHeader: string[];
+  * style: { [key: string]: any }
   * } }options
   * @returns { Promise<string> }
 */
 function exportExecl(isDOMString, options) {
+    const optionsKeys = require('../../json/exportExecl.json').optionsKeys;
+    Object.keys(options).forEach((key) => {
+      if (!optionsKeys[key]) console.warn('options没有' + key + '这个property');
+    })
     let data = options.data;
     let fileName = options.fileName;
     let tableHeader = options.tableHeader;
+    let style = options.style || {};
+    let mimeType = options.mimeType || '.xlsx'
     return new Promise((reslove, reject) => {
       if (isDOMString) {
+        if (Object.keys(style).length) {
+          throw new Error('原生dom不支持style属性')
+        }
         try {
           const str = `<table  border="1"><tobody>${data}</tobody></table>`
           const blob = new Blob([str], { type: 'application/vnd.ms-powerpoint;charset=utf-8' });
           const link = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
-          a.download = fileName + '.xlsx';
+          a.download = fileName + mimeType;
           a.href = link;
           document.body.appendChild(a);
           a.click();
@@ -37,29 +47,41 @@ function exportExecl(isDOMString, options) {
         console.time('time to export execl')
         try {
           let tableTr = '';
+          let headerStyle = '';
+          let bodyStyle = '';
+          if (Object.keys(style).length) {
+            if (style.header) {
+              Object.keys(style.header).forEach(key => {
+                headerStyle += key + ':' + style.header[key] + ';'
+              })
+            }
+            if (style.body) {
+              Object.keys(style.body).forEach(key => {
+                bodyStyle += key + ':' + style.body[key] + ';'
+              })
+            }
+          }
           if (tableHeader.length) {
             if (Object.keys(data[0]).length !== tableHeader.length) reject('表头数组长度与表格数组长度不符合');
             tableHeader.forEach((item) => {
-              tableTr += ('<td>' + item + '</td>')
+              tableTr += (`<td style="${headerStyle}">` + item + '</td>')
             })
-            tableTr = '<tr>' + tableTr + '</tr>';
+            
+            tableTr = `<tr style="border: 0.5px solid #000">` + tableTr + '</tr>';
           }
           data.forEach((item) => {
             let newStr = ''
             for (const key in item) {
-              if (item[key] === null) {
-                newStr += ('<td  style="mso-number-format:\\@;">' + '' + '</td>')
-              } else {
-                newStr += ('<td  style="mso-number-format:\\@;">' + item[key] + '</td>')
-              }
+              newStr += (`<td  style="mso-number-format:\\@;${bodyStyle}">` + (item[key] || '') + '</td>')
             }
-            tableTr += '<tr>' + newStr + '</tr>';
+            tableTr += '<tr style="border: 0.5px solid #000">>' + newStr + '</tr>';
           })
-          const str = `<table  border="1"><tobody>${tableTr}</tobody></table>`
-          const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          const str = `<table  style="border: 0.5px solid #000"><tobody>${tableTr}</tobody></table>`
+          const blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          // const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
           const link = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
-          a.download = fileName + '.xls';
+          a.download = fileName + mimeType;
           a.href = link;
           document.body.appendChild(a);
           a.click();
@@ -67,7 +89,7 @@ function exportExecl(isDOMString, options) {
           document.body.removeChild(a);
           reslove('success');
         } catch (error) {
-          reject('export execl error', error);
+          reject(error);
         }
       }
     })
