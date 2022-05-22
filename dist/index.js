@@ -36,13 +36,13 @@ var require$$0 = getCjsExportFromNamespace(exportExecl$2);
   * @param { {[key: string]: string | number}[] }data 传入的数据
   * @param { string }fileName 下载的execl文件的文件名
   * @param { string[] }tableHeader execl的表头
-  * @param { {
-  * data: {[key: string]: string | number}[];
-  * fileName: string;
-  * tableHeader: string[];
-  * style: { [key: string]: any }
-  * } }options
-  * @returns { Promise<string> }
+  * @param {{ 
+  *           data: {[key: string]: string | number}[];
+  *           fileName: string;
+  *           tableHeader: string[];
+  *           style: { [key: string]: any }
+  *         }}options
+  * @returns { Promise<boolean> }
 */
 function exportExecl(isDOMString, options) {
     const optionsKeys = require$$0.optionsKeys;
@@ -53,9 +53,10 @@ function exportExecl(isDOMString, options) {
     let fileName = options.fileName;
     let tableHeader = options.tableHeader;
     let style = options.style || {};
-    let mimeType = options.mimeType || '.xlsx';
+    let mimeType = '.' + (options.mimeType || 'xlsx');
     return new Promise((reslove, reject) => {
       if (isDOMString) {
+        console.time('export time');
         if (Object.keys(style).length) {
           throw new Error('原生dom不支持style属性')
         }
@@ -69,36 +70,27 @@ function exportExecl(isDOMString, options) {
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          reslove('success');
+          reslove(console.timeEnd('export time'));
         } catch (error) {
-          reject('export execl error', error);
+          reject(error);
         }
       } else {
-        console.time('time to export execl');
+        console.time('export time');
         try {
           let tableTr = '';
           let headerStyle = '';
           let bodyStyle = '';
           if (Object.keys(style).length) {
-            if (style.header) {
-              Object.keys(style.header).forEach(key => {
-                headerStyle += key + ':' + style.header[key] + ';';
-              });
-            }
-            if (style.body) {
-              Object.keys(style.body).forEach(key => {
-                bodyStyle += key + ':' + style.body[key] + ';';
-              });
-            }
+            if (style.header) Object.keys(style.header).forEach(key => headerStyle += key + ':' + style.header[key] + ';');
+            if (style.body) Object.keys(style.body).forEach(key => bodyStyle += key + ':' + style.body[key] + ';');
           }
+
           if (tableHeader.length) {
             if (Object.keys(data[0]).length !== tableHeader.length) reject('表头数组长度与表格数组长度不符合');
-            tableHeader.forEach((item) => {
-              tableTr += (`<td style="${headerStyle}">` + item + '</td>');
-            });
-            
+            tableHeader.forEach((item) => tableTr += (`<td style="${headerStyle}">` + item + '</td>'));
             tableTr = `<tr>` + tableTr + '</tr>';
           }
+
           data.forEach((item) => {
             let newStr = '';
             for (const key in item) {
@@ -106,7 +98,7 @@ function exportExecl(isDOMString, options) {
             }
             tableTr += '<tr>' + newStr + '</tr>';
           });
-          
+
           const str = `<html xmlns:o="urn:schemas-microsoft-com:office:office" 
           xmlns:x="urn:schemas-microsoft-com:office:excel" 
           xmlns="http://www.w3.org/TR/REC-html40">
@@ -114,18 +106,22 @@ function exportExecl(isDOMString, options) {
           <x:Name>${ fileName }</x:Name>
           <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
           </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-          </head><body><table  style="border: 1"><tobody>${tableTr}</tobody></table></body></html>`;
-          // const blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-          const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          </head><body><table style="border: 1"><tobody>${ tableTr }</tobody></table></body></html>`;
+
+          let blob = null;
+          if (mimeType === '.xlsx') {
+            blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+          } else if (mimeType === '.xls') {
+            blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          }
           const link = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.download = fileName + mimeType;
           a.href = link;
           document.body.appendChild(a);
           a.click();
-          console.timeEnd('time to export execl');
           document.body.removeChild(a);
-          reslove('success');
+          reslove(console.timeEnd('export time'));
         } catch (error) {
           reject(error);
         }
