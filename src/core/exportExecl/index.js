@@ -67,18 +67,26 @@ function exportExecl(isDOMString, options) {
               tableTr += (`<td style="${headerStyle}">` + item + '</td>')
             })
             
-            tableTr = `<tr style="border: 0.5px solid #000">` + tableTr + '</tr>';
+            tableTr = `<tr>` + tableTr + '</tr>';
           }
           data.forEach((item) => {
             let newStr = ''
             for (const key in item) {
               newStr += (`<td  style="mso-number-format:\\@;${bodyStyle}">` + (item[key] || '') + '</td>')
             }
-            tableTr += '<tr style="border: 0.5px solid #000">>' + newStr + '</tr>';
+            tableTr += '<tr>' + newStr + '</tr>';
           })
-          const str = `<table  style="border: 0.5px solid #000"><tobody>${tableTr}</tobody></table>`
-          const blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-          // const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          
+          const str = `<html xmlns:o="urn:schemas-microsoft-com:office:office" 
+          xmlns:x="urn:schemas-microsoft-com:office:excel" 
+          xmlns="http://www.w3.org/TR/REC-html40">
+          <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+          <x:Name>${ fileName }</x:Name>
+          <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+          </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+          </head><body><table  style="border: 1"><tobody>${tableTr}</tobody></table></body></html>`;
+          // const blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
           const link = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.download = fileName + mimeType;
