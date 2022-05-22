@@ -23,7 +23,7 @@ function exportExecl(isDOMString, options) {
     let fileName = options.fileName;
     let tableHeader = options.tableHeader;
     let style = options.style || {};
-    let mimeType = options.mimeType || '.xlsx'
+    let mimeType = '.' + (options.mimeType || 'xlsx');
     return new Promise((reslove, reject) => {
       if (isDOMString) {
         if (Object.keys(style).length) {
@@ -84,9 +84,13 @@ function exportExecl(isDOMString, options) {
           <x:Name>${ fileName }</x:Name>
           <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
           </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-          </head><body><table  style="border: 1"><tobody>${tableTr}</tobody></table></body></html>`;
-          // const blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-          const blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          </head><body><table  style="border: 1"><tobody>${ tableTr }</tobody></table></body></html>`;
+          const blob = null;
+          if (mimeType === '.xlsx') {
+            blob = new Blob([str], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+          } else if (mimeType === '.xls') {
+            blob = new Blob([str], { type: 'application/vnd.ms-excel;charset=utf-8' });
+          }
           const link = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.download = fileName + mimeType;
