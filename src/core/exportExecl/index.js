@@ -6,12 +6,12 @@
   * @param { {[key: string]: string | number}[] }data 传入的数据
   * @param { string }fileName 下载的execl文件的文件名
   * @param { string[] }tableHeader execl的表头
-  * @param { {
-  * data: {[key: string]: string | number}[];
-  * fileName: string;
-  * tableHeader: string[];
-  * style: { [key: string]: any }
-  * } }options
+  * @param {{ 
+  *           data: {[key: string]: string | number}[];
+  *           fileName: string;
+  *           tableHeader: string[];
+  *           style: { [key: string]: any }
+  *         }}options
   * @returns { Promise<string> }
 */
 function exportExecl(isDOMString, options) {
