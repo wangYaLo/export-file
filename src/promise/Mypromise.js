@@ -33,7 +33,7 @@ let Mypromise = (function () {
         if (typeof fn === 'function') {
             fn(Mypromise.resolve.bind(this), Mypromise.reject.bind(this))
         } else {
-            throw new Error('这不是一个函数')
+            throw new Error('arguments is not a function')
         }
     }
     Object.defineProperty(Mypromise.prototype, 'catch', {
@@ -131,7 +131,7 @@ let Mypromise = (function () {
     })
     Object.defineProperty(Mypromise, 'all', {
         value: function (value) {
-            if (!Array.isArray(value)) throw new Error('is not a Array')
+            if (!Array.isArray(value)) throw new Error('arguments[0] is not a Array')
             let mypromiseData = [];
             let mypromiseArr = Array.from(value);
             let index = 0;
@@ -151,7 +151,7 @@ let Mypromise = (function () {
     })
     Object.defineProperty(Mypromise, 'race', {
         value: function (value) {
-            if (!Array.isArray(value)) throw new Error('is not a Array')
+            if (!Array.isArray(value)) throw new Error('arguments[0] is not a Array')
             let mypromiseData = [];
             let mypromiseArr = Array.from(value);
             let index = 0;
